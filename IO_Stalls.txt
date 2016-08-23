@@ -1,0 +1,22 @@
+DECLARE @Uptime bigint, @TotalStall bigint
+
+SELECT @Uptime = DATEDIFF(second,create_date,GETDATE())
+FROM sys.databases
+WHERE name = 'TempDB'
+
+
+SELECT @TotalStall = SUM(io_stall)
+FROM sys.dm_io_virtual_file_stats(NULL,NULL)
+
+SELECT DB_NAME(fs.database_id) as DatabaseName
+,mf.name as FileName
+,io_stall_read_ms
+,io_stall_write_ms
+,CAST(io_stall_read_ms*1.0/io_stall * 100 AS DECIMAL(4,2)) as 'ReadStall%'
+,CAST(io_stall_write_ms*1.0/io_stall * 100 AS DECIMAL(4,2)) as 'WriteStall%'
+,CAST(io_stall*1.0/@TotalStall * 100 AS DECIMAL(4,2)) as 'TotalStall%'
+FROM sys.dm_io_virtual_file_stats(NULL,NULL) fs
+	INNER JOIN sys.master_files mf
+		on fs.Database_id = mf.database_id
+			AND fs.file_id = mf.file_id
+ORDER BY [TotalStall%] DESC

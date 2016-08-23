@@ -1,0 +1,9 @@
+select	tbl.[name] TableName,
+ind.[name] IndexName,
+mn.index_type_desc IndexType,
+mn.avg_fragmentation_in_percent [FRAG_%]
+from sys.dm_db_index_physical_stats (null, null, null, null, null )as mn
+inner join sys.tables tbl on tbl.[object_id] = mn.[object_id]
+inner join sys.indexes ind on ind.[object_id] = mn.[object_id]
+where [database_id] = db_id('icl')
+order by mn.avg_fragmentation_in_percent desc
