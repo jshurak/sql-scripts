@@ -1,0 +1,34 @@
+DECLARE @rc INT
+DECLARE @TraceID INT
+DECLARE @MaxFileSize BIGINT
+DECLARE @EndTime DATETIME
+DECLARE @OutputFileName NVARCHAR(256)
+ 
+SET @MaxFileSize = 100 
+SET @OutputFileName = 'F:\Traces\WebForums' + 
+    CONVERT(VARCHAR(20), GETDATE(),112) + 
+    REPLACE(CONVERT(VARCHAR(20), GETDATE(),108),':','')
+SET @EndTime = DATEADD(mi,30,getdate())
+ 
+exec @rc = sp_trace_create @TraceID output, 0, @OutputFileName, @MaxFileSize, @EndTime 
+ 
+-- Set the events and columns
+declare @on bit
+set @on = 1
+exec sp_trace_setevent @TraceID, 10, 16, @on
+exec sp_trace_setevent @TraceID, 10, 1,  @on
+exec sp_trace_setevent @TraceID, 10, 17, @on
+exec sp_trace_setevent @TraceID, 10, 18, @on
+exec sp_trace_setevent @TraceID, 10, 12, @on
+exec sp_trace_setevent @TraceID, 10, 13, @on
+exec sp_trace_setevent @TraceID, 10, 14, @on
+exec sp_trace_setevent @TraceID, 12, 16, @on
+exec sp_trace_setevent @TraceID, 12, 1,  @on
+exec sp_trace_setevent @TraceID, 12, 17, @on
+exec sp_trace_setevent @TraceID, 12, 14, @on
+exec sp_trace_setevent @TraceID, 12, 18, @on
+exec sp_trace_setevent @TraceID, 12, 12, @on
+exec sp_trace_setevent @TraceID, 12, 13, @on
+ 
+-- Set the trace status to start
+exec sp_trace_setstatus @TraceID, 1
